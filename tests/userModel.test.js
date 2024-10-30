@@ -48,7 +48,7 @@ describe("createUser", () => {
     supabase.from.mockReturnValue({
       insert: jest.fn().mockResolvedValue({
         data: null,
-        error: "Insert Error",
+        error: { message: "Insert Error" },
       }),
     });
 
@@ -58,11 +58,7 @@ describe("createUser", () => {
 
     expect(supabase.from).toHaveBeenCalledWith("users");
     expect(supabase.from().insert).toHaveBeenCalledWith([
-      {
-        username: "testuser",
-        email: "test@example.com",
-        password: "hashedpassword",
-      },
+      { username: "kai", email: "kai@example.com", password: "hashedpassword" },
     ]);
   });
 });
