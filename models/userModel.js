@@ -5,10 +5,6 @@ const createUser = async (username, email, hashedPassword) => {
     .from("users")
     .insert([{ username, email, password: hashedPassword }]);
 
-  if (error) throw new Error(error.message); // Explicitly throw the error if it exists
-  return data[0];
-};
-
 const loginUser = async (email, password) => {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
