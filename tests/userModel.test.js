@@ -1,9 +1,12 @@
-const { createUser } = require("../models/userModel");
+const { createUser, loginUser } = require("../models/userModel");
 
 jest.mock("../supabase", () => ({
   from: jest.fn(() => ({
     insert: jest.fn(),
   })),
+  auth: {
+    signInWithPassword: jest.fn(),
+  },
 }));
 
 const supabase = require("../supabase");
@@ -60,5 +63,42 @@ describe("createUser", () => {
     expect(supabase.from().insert).toHaveBeenCalledWith([
       { username: "kai", email: "kai@example.com", password: "hashedpassword" },
     ]);
+  });
+});
+
+describe("loginUser", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should return user data on sucessful login", async () => {
+    const mockData = {
+      user: {
+        id: 1,
+        email: "test@example.com",
+        session: { access_token: "token" },
+      },
+    };
+    supabase.auth.signInWithPassword.mockResolvedValue({
+      data: mockData,
+      error: null,
+    });
+
+    const result = await loginUser("test@example.com", "password123");
+    expect(supabase.auth.signInWithPassword).toHaveBeenCalledWith({
+      email: "test@example.com",
+      password: "password123",
+    });
+    expect(result).toEqual(mockData);
+  });
+
+  it("should throw an error if login fails", async () => {
+    supabase.auth.signInWithPassword.mockResolvedValue({
+      data: null,
+      error: { message: "Invalid login credentials" },
+    });
+    await expect(
+      loginUser("wrong@example.com", "wrongpassword")
+    ).rejects.toThrow("Login failed: Invalid login credentials");
   });
 });
