@@ -5,7 +5,7 @@ const createUser = async (username, email, hashedPassword) => {
     .from('users')
     .insert([{ username, email, password: hashedPassword }]);
 
-  if (error) throw new Error(error.message);  // Explicitly throw the error if it exists
+  if (error) throw new Error(error.message); 
   return data[0];
 };
 
